@@ -17,7 +17,7 @@ public class UserController(UserService service) : ControllerBase
     {
         try
         {
-            // ValidationErrors errors = ValidationErrors.ValidateUser(user);
+            // ValidationErrors errors = ValidationErrors.ValidateUser(request);
             // if (errors != null) return BadRequest(new ExceptionResponse(...));
 
             UserResponse dbUser = await _service.FindbyId(id);
@@ -34,14 +34,14 @@ public class UserController(UserService service) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(UserRequest user)
+    public async Task<IActionResult> Create(UserRequest request)
     {
         try
         {
-            // ValidationErrors errors = ValidationErrors.ValidateUser(user);
+            // ValidationErrors errors = ValidationErrors.ValidateUser(request);
             // if (errors != null) return BadRequest(new ExceptionResponse(...));
 
-            UserResponse newUser = await _service.Create(user);
+            UserResponse newUser = await _service.Create(request);
             return Created($"{Request.Path}/{newUser.Id}", newUser);
         }
         catch(Exception)
@@ -51,14 +51,14 @@ public class UserController(UserService service) : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update([FromRoute] Guid id, UserRequest user)
+    public async Task<IActionResult> Update([FromRoute] Guid id, UserRequest request)
     {
         try
         {
-            // ValidationErrors errors = ValidationErrors.ValidateUser(user);
+            // ValidationErrors errors = ValidationErrors.ValidateUser(request);
             // if (errors != null) return BadRequest(new ExceptionResponse(...));
 
-            UserResponse dbUser = await _service.Update(id, user);
+            UserResponse dbUser = await _service.Update(id, request);
             return Ok(dbUser);
         }
         catch (ApiException e)

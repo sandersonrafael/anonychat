@@ -10,9 +10,9 @@ namespace Backend.Controllers;
 [Route("api/chats")]
 public class ChatController(ChatService service) : ControllerBase
 {
-    private readonly ChatService _service = service;
+    private readonly ChatService _service = service; // Implement Delete 
 
-    [HttpGet]
+    [HttpGet("{id}")]
     public async Task<IActionResult> FindAllByUserId([FromRoute] Guid id)
     {
         try

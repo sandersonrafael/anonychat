@@ -29,7 +29,9 @@ public class UserService(UserRepository repository)
         if (dbUser.PasswordHash != request.Password) throw new UnauthorizedException("Invalid credentials");
 
         dbUser = User.FromUserRequest(request);
-        dbUser = await _repository.Update(id, dbUser) ?? throw new ResourceNotFoundException("User not found");
+        dbUser.Id = id;
+
+        dbUser = await _repository.Update(dbUser) ?? throw new ResourceNotFoundException("User not found");
         return UserResponse.FromUser(dbUser);
     }
 }

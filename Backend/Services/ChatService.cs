@@ -13,7 +13,7 @@ public class ChatService(ChatRepository repository, UserRepository userRepositor
 
     public async Task<List<ChatResponse>> FindAllByUserId(Guid userId)
     {
-        User user = await _userRepository.FindbyId(userId) ?? throw new ResourceNotFoundException("Invalid user id");
+        User user = await _userRepository.FindbyId(userId) ?? throw new ResourceNotFoundException("User not found");
         List<Chat> chats = await _repository.FindAllByUserId(userId);
         List<ChatResponse> chatResponses = chats.Select(ChatResponse.FromChat).ToList();
         return chatResponses;

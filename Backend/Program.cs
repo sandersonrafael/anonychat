@@ -17,6 +17,8 @@ builder.Services.AddTransient<UserRepository>();
 builder.Services.AddTransient<UserService>();
 builder.Services.AddTransient<ChatRepository>();
 builder.Services.AddTransient<ChatService>();
+builder.Services.AddTransient<MessageRepository>();
+builder.Services.AddTransient<MessageService>();
 
 var app = builder.Build();
 

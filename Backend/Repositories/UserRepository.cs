@@ -1,6 +1,7 @@
 ﻿using Backend.Infra.Database;
 using Backend.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Backend.Repositories;
 
@@ -21,9 +22,9 @@ public class UserRepository(SqlServerContext context)
         return user;
     }
 
-    public async Task<User?> Update(Guid id, User user)
+    public async Task<User?> Update(User user)
     {
-        User? dbUser = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
+        User? dbUser = await _context.Users.SingleOrDefaultAsync(u => u.Id == user.Id);
         if (dbUser != null)
         {
             dbUser.Name = user.Name;
