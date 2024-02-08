@@ -1,4 +1,4 @@
-﻿using Backend.Exceptions.ApplicationExceptions;
+﻿using Backend.Exceptions.ApiExceptions;
 using Backend.Models;
 using Backend.Models.Requests;
 using Backend.Models.Responses;
@@ -13,13 +13,23 @@ public class UserService(UserRepository repository)
     public async Task<UserResponse> FindbyId(Guid id)
     {
         User? user = await _repository.FindbyId(id) ?? throw new ResourceNotFoundException("User not found");
-        return new(user.Id, user.Name, user.ProfileImg, user.CreatedAt, user.LastMessageSentAt);
+        return UserResponse.FromUser(user);
     }
 
     public async Task<UserResponse> Create(UserRequest request)
     {
-        User newUser = new() { Name = request.Name, ProfileImg = request.ProfileImg };
-        User dbUser = await _repository.Create(newUser);
-        return new UserResponse(dbUser.Id, dbUser.Name, dbUser.ProfileImg, dbUser.CreatedAt, dbUser.LastMessageSentAt);
+        User user = User.FromUserRequest(request);
+        user = await _repository.Create(user);
+        return UserResponse.FromUser(user);
+    }
+
+    public async Task<UserResponse> Update(Guid id, UserRequest request)
+    {
+        User dbUser = await _repository.FindbyId(id) ?? throw new ResourceNotFoundException("User not found");
+        if (dbUser.PasswordHash != request.Password) throw new UnauthorizedException("Invalid credentials");
+
+        dbUser = User.FromUserRequest(request);
+        dbUser = await _repository.Update(id, dbUser) ?? throw new ResourceNotFoundException("User not found");
+        return UserResponse.FromUser(dbUser);
     }
 }

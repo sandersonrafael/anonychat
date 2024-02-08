@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Backend.Models.Requests;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models;
@@ -9,12 +10,16 @@ public class User
     public Guid Id { get; set; }
     public string Name { get; set; }
     public string? ProfileImg {  get; set; }
-    public DateTime CreatedAt { get; set; }
-    public DateTime? LastMessageSentAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? LastMessageSentAt { get; set; }
+    public string PasswordHash { get; set; }
 
     public User()
     {
         Id = Guid.NewGuid();
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt = DateTimeOffset.UtcNow;
     }
+
+    public static User FromUserRequest(UserRequest user)
+        => new() { Name = user.Name, PasswordHash = user.Password, ProfileImg = user.ProfileImg };
 }

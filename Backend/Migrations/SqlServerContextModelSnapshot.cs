@@ -24,13 +24,13 @@ namespace Backend.Migrations
 
             modelBuilder.Entity("Backend.Models.Chat", b =>
                 {
-                    b.Property<Guid>("UserId1")
+                    b.Property<Guid>("ActualUserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("UserId2")
+                    b.Property<Guid>("OtherUserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("UserId1", "UserId2");
+                    b.HasKey("ActualUserId", "OtherUserId");
 
                     b.ToTable("Chats");
                 });
@@ -42,6 +42,16 @@ namespace Backend.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid>("ChatActualUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ChatOtherUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -56,6 +66,8 @@ namespace Backend.Migrations
 
                     b.HasIndex("UserId");
 
+                    b.HasIndex("ChatActualUserId", "ChatOtherUserId");
+
                     b.ToTable("Messages");
                 });
 
@@ -65,13 +77,17 @@ namespace Backend.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<DateTime?>("LastMessageSentAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("LastMessageSentAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -90,6 +106,14 @@ namespace Backend.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Backend.Models.Chat", "Chat")
+                        .WithMany()
+                        .HasForeignKey("ChatActualUserId", "ChatOtherUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
 
                     b.Navigation("User");
                 });

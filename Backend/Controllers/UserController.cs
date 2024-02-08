@@ -1,5 +1,4 @@
 ﻿using Backend.Exceptions;
-using Backend.Exceptions.ApplicationExceptions;
 using Backend.Models.Requests;
 using Backend.Models.Responses;
 using Backend.Services;
@@ -7,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Backend.Controllers;
 
-[Route("/api/users")]
 [ApiController]
+[Route("/api/users")]
 public class UserController(UserService service) : ControllerBase
 {
     private readonly UserService _service = service;
@@ -24,14 +23,9 @@ public class UserController(UserService service) : ControllerBase
             UserResponse dbUser = await _service.FindbyId(id);
             return Ok(dbUser);
         }
-        catch(ApplicationException e)
+        catch(ApiException e)
         {
-            ExceptionResponse exception = new(0, Request.Path, Request.Method, e.Message);
-
-            if (e is ResourceNotFoundException) exception.Status = 404;
-
-            if (exception.Status == 0) throw new Exception();
-            return StatusCode(exception.Status, exception);
+            return StatusCode(e.Status, new ExceptionResponse(e.Status, Request.Path, Request.Method, e.Message));
         }
         catch (Exception)
         {
@@ -51,6 +45,27 @@ public class UserController(UserService service) : ControllerBase
             return Created($"{Request.Path}/{newUser.Id}", newUser);
         }
         catch(Exception)
+        {
+            return StatusCode(500, ExceptionResponse.Internal(Request.Path, Request.Method));
+        }
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update([FromRoute] Guid id, UserRequest user)
+    {
+        try
+        {
+            // ValidationErrors errors = ValidationErrors.ValidateUser(user);
+            // if (errors != null) return BadRequest(new ExceptionResponse(...));
+
+            UserResponse dbUser = await _service.Update(id, user);
+            return Ok(dbUser);
+        }
+        catch (ApiException e)
+        {
+            return StatusCode(e.Status, new ExceptionResponse(e.Status, Request.Path, Request.Method, e.Message));
+        }
+        catch (Exception)
         {
             return StatusCode(500, ExceptionResponse.Internal(Request.Path, Request.Method));
         }

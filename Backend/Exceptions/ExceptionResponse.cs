@@ -1,7 +1,4 @@
-﻿using Azure.Core;
-using Azure;
-
-namespace Backend.Exceptions;
+﻿namespace Backend.Exceptions;
 
 public class ExceptionResponse(int status, string path, string method, string message)
 {

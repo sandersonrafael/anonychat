@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateTablesUsersAndChatsAndMessages : Migration
+    public partial class AddTablesUserChatAndMessage : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,12 +15,12 @@ namespace Backend.Migrations
                 name: "Chats",
                 columns: table => new
                 {
-                    UserId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId2 = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    ActualUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OtherUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Chats", x => new { x.UserId1, x.UserId2 });
+                    table.PrimaryKey("PK_Chats", x => new { x.ActualUserId, x.OtherUserId });
                 });
 
             migrationBuilder.CreateTable(
@@ -30,8 +30,9 @@ namespace Backend.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ProfileImg = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastMessageSentAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    LastMessageSentAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,6 +46,9 @@ namespace Backend.Migrations
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ChatActualUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ChatOtherUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
@@ -52,12 +56,23 @@ namespace Backend.Migrations
                 {
                     table.PrimaryKey("PK_Messages", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Messages_Chats_ChatActualUserId_ChatOtherUserId",
+                        columns: x => new { x.ChatActualUserId, x.ChatOtherUserId },
+                        principalTable: "Chats",
+                        principalColumns: new[] { "ActualUserId", "OtherUserId" },
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Messages_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_ChatActualUserId_ChatOtherUserId",
+                table: "Messages",
+                columns: new[] { "ChatActualUserId", "ChatOtherUserId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Messages_UserId",
@@ -69,10 +84,10 @@ namespace Backend.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Chats");
+                name: "Messages");
 
             migrationBuilder.DropTable(
-                name: "Messages");
+                name: "Chats");
 
             migrationBuilder.DropTable(
                 name: "Users");

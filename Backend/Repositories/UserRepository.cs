@@ -10,14 +10,27 @@ public class UserRepository(SqlServerContext context)
 
     public async Task<User?> FindbyId(Guid id)
     {
-        User? user = await _context.Users.FirstOrDefaultAsync(user => user.Id == id);
+        User? user = await _context.Users.SingleOrDefaultAsync(user => user.Id == id);
         return user;
     }
 
     public async Task<User> Create(User user)
     {
-        _context.Users.Add(user);
+        await _context.Users.AddAsync(user);
         await _context.SaveChangesAsync();
         return user;
+    }
+
+    public async Task<User?> Update(Guid id, User user)
+    {
+        User? dbUser = await _context.Users.SingleOrDefaultAsync(u => u.Id == id);
+        if (dbUser != null)
+        {
+            dbUser.Name = user.Name;
+            dbUser.ProfileImg = user.ProfileImg;
+
+            await _context.SaveChangesAsync();
+        }
+        return dbUser;
     }
 }

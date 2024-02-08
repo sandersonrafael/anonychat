@@ -4,9 +4,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models;
 
-[PrimaryKey(nameof(UserId1), nameof(UserId2))]
+[PrimaryKey(nameof(ActualUserId), nameof(OtherUserId))]
 public class Chat
 {
-    public Guid UserId1 { get; set; }
-    public Guid UserId2 { get; set; }
+    public Guid ActualUserId { get; set; }
+
+    public Guid OtherUserId { get; set; }
 }
